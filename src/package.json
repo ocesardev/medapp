@@ -1,0 +1,24 @@
+{
+  "name": "medapp",
+  "version": "1.0.0",
+  "description": "Mini projeto da Desco",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Caio Cesar",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.0",
+    "multer": "^2.0.2",
+    "next": "^15.5.3",
+    "path": "^0.12.7",
+    "pdfkit": "^0.17.2",
+    "process": "^0.11.10"
+  }
+}
