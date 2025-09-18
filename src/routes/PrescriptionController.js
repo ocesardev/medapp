@@ -4,13 +4,14 @@ import prescriptionService from "../services/PrescriptionService.js";
 import multer from "multer";
 import path from "path";
 import process from "process";
+import fs from "fs";
 
 let router = express.Router();
 
 const storage = multer.diskStorage(
     {
         destination: function(req, file, cb){
-            cb(null, './medapp/prescriptions');
+            cb(null, './src/prescriptions');
         },
         filename: function(req, file, cb){
             cb(null, file.originalname);
@@ -25,7 +26,7 @@ router.post('/uploadPrescription/:id', upload.single('file'), async (req, res) =
         const {id} = req.params;
         let prescription = await PrescriptionService.getPrescription(id);
 
-        const file = "./medapp/prescriptions" + req.file.originalname;
+        const file = path.resolve(req.file.path);
         prescription = await PrescriptionService.updatePrescription(id, { file });
 
         return res.status(200).send(prescription);
@@ -37,17 +38,21 @@ router.post('/uploadPrescription/:id', upload.single('file'), async (req, res) =
 });
 
 router.get('/readPrescription/:id', async (req, res) => {
-    const {id} = req.params;
-
     try {
+        const { id } = req.params;
         const prescription = await PrescriptionService.getPrescription(id);
-        let filePath = path.resolve(process.cwd() + "/../" + prescription.file);
-        return res.status(200).sendFile(filePath);
+
+        const filePath = path.resolve(prescription.file); // caminho correto do PDF
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=${path.basename(filePath)}`);
+
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(res);
     } catch (error) {
         console.log(error);
         res.status(500).send(error);
     }
-})
+});
 
 router.get('/prescriptions', async (req, res) => {
     try {
@@ -118,7 +123,7 @@ router.get('/generatePrescription/:id', async (req, res) => {
 
     try {
         const prescription = await PrescriptionService.getPrescription(id);
-        const generatedPrescription = await prescriptionService.generatePrescriptionFile(prescription);
+        const generatedPrescription = await PrescriptionService.generatePrescriptionFile(prescription);
         res.send(generatedPrescription);
     } catch (error) {
         console.log(error);
